@@ -25,6 +25,7 @@ export const convex = () => {
   const oidcProvider = oidcProviderPlugin({
     loginPage: "/not-used",
     metadata: {
+      issuer: `${process.env.CONVEX_SITE_URL}`,
       jwks_uri: `${process.env.CONVEX_SITE_URL}/api/auth/convex/jwks`,
     },
   });

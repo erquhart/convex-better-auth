@@ -3,7 +3,7 @@ import {
   BetterAuth,
   convexAdapter,
 } from "@convex-dev/better-auth";
-import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
+import { convex } from "@convex-dev/better-auth/plugins";
 import { components, internal } from "./_generated/api";
 import { twoFactor } from "better-auth/plugins";
 import { emailOTP } from "better-auth/plugins";
@@ -20,12 +20,13 @@ const authFunctions: AuthFunctions = internal.auth;
 export const betterAuthComponent = new BetterAuth(
   components.betterAuth,
   authFunctions,
+  { verbose: true },
 );
 
 export const createAuth = (ctx: GenericCtx) =>
   betterAuth({
+    baseURL: `${process.env.SITE_URL}`,
     database: convexAdapter(ctx, betterAuthComponent),
-    trustedOrigins: ["http://localhost:3000", "https://localhost:3000"],
     account: {
       accountLinking: {
         enabled: true,
@@ -83,7 +84,6 @@ export const createAuth = (ctx: GenericCtx) =>
       }),
       twoFactor(),
       convex(),
-      crossDomain(),
     ],
   });
 

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Settings, LogOut } from "lucide-react";
 import { Toaster } from "sonner";
-import { authClient } from "@/app/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function AppPage() {
   const user = useQuery(api.example.getCurrentUser);
