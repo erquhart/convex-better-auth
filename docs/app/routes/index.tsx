@@ -4,7 +4,7 @@ import DocsLayout from "@/components/docs-layout";
 import { CodeBlock as CodeBlockComponent } from "@/components/code-block";
 import { stripIndent } from "common-tags";
 import { AlertTriangle } from "lucide-react";
-import { ComponentProps, PropsWithChildren } from "react";
+import { ComponentProps, PropsWithChildren, useState } from "react";
 import { cx } from "class-variance-authority";
 import { GenerateSecret } from "@/components/generate-secret";
 import { cn } from "@/lib/utils";

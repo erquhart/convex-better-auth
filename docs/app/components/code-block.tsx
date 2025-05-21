@@ -2,117 +2,20 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Highlight, PrismTheme, themes } from "prism-react-renderer";
+import { Highlight, themes } from "prism-react-renderer";
 import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  useSelectedVariant,
+  setSelectedVariant,
+} from "./code-block-variant-store";
 
 interface HighlightedSection {
   start: number;
   end: number;
 }
-
-// Custom theme inspired by Dracula with our brand colors
-const darkTheme = {
-  plain: {
-    color: "#e4e4e7", // Slightly dimmer base text color
-    backgroundColor: "transparent",
-  },
-  styles: [
-    {
-      types: ["comment", "prolog", "doctype", "cdata"],
-      style: {
-        color: "#6272a4",
-        fontStyle: "italic" as const,
-      },
-    },
-    {
-      types: ["operator", "punctuation", "delimiter", "char"],
-      style: {
-        color: "#64748b", // Muted for structural elements
-      },
-    },
-    {
-      types: ["string", "attr-value", "template-punctuation"],
-      style: {
-        color: "#e6a91c", // Slightly muted orange/yellow for strings
-      },
-    },
-    {
-      types: ["number", "boolean", "inserted"],
-      style: {
-        color: "#bd93f9", // Purple for literals
-      },
-    },
-    {
-      types: ["variable", "parameter"],
-      style: {
-        color: "#e4e4e7", // Base color for variables
-      },
-    },
-    {
-      types: ["property", "property-access", "member", "object"],
-      style: {
-        color: "#94a3b8", // Muted slate for properties/members
-      },
-    },
-    {
-      types: ["function", "method", "deleted", "tag"],
-      style: {
-        color: "#e6a91c", // Slightly muted orange/yellow for functions
-      },
-    },
-    {
-      types: ["keyword"],
-      style: {
-        color: "#e63366", // Slightly muted pink for core keywords
-      },
-    },
-    {
-      types: ["constant", "regex"],
-      style: {
-        color: "#db72b6", // Slightly muted lighter pink for constants
-      },
-    },
-    {
-      types: [
-        "class-name",
-        "maybe-class-name",
-        "interface",
-        "enum",
-        "type-parameters",
-      ],
-      style: {
-        color: "#bd93f9", // Purple for class/type names
-      },
-    },
-    {
-      types: ["builtin", "attr-name"],
-      style: {
-        color: "#94a3b8", // Muted slate for built-ins
-      },
-    },
-    {
-      types: ["type", "type-annotation"],
-      style: {
-        color: "#c4b5fd", // Lighter purple for type annotations
-      },
-    },
-    {
-      types: ["module", "imports", "exports"],
-      style: {
-        color: "#e63366", // Slightly muted pink for module-related
-      },
-    },
-    {
-      types: ["function-variable"],
-      style: {
-        color: "#e6a91c", // Slightly muted orange/yellow for function variables
-      },
-    },
-  ],
-} satisfies PrismTheme;
 
 type CodeBlockVariant = {
   label: string;
@@ -124,6 +27,7 @@ type CodeBlockVariant = {
 
 interface CodeBlockProps {
   variants?: CodeBlockVariant[];
+  variantGroup?: string;
   language?: string;
   code?: string;
   className?: string;
@@ -352,13 +256,14 @@ function CodeBlockInternal({
 export function CodeBlock(props: CodeBlockProps) {
   const {
     variants,
+    variantGroup = "",
     language = "",
     code = "",
     className,
     filename,
     highlightedLines = [],
   } = props;
-  const [selected, setSelected] = useState(0);
+  const globalSelected = useSelectedVariant(variantGroup);
 
   let variantSelector: React.ReactNode = null;
   let active: {
@@ -369,7 +274,10 @@ export function CodeBlock(props: CodeBlockProps) {
   } = { language, code, filename, highlightedLines };
 
   if (variants && variants.length > 0) {
-    active = variants[selected] || variants[0];
+    const availableLabels = variants.map((v) => v.label);
+    const selectedIndex = availableLabels.indexOf(globalSelected);
+    const actualIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    active = variants[actualIndex] || variants[0];
     if (variants.length > 1) {
       variantSelector = (
         <div className="flex" role="tablist">
@@ -378,13 +286,13 @@ export function CodeBlock(props: CodeBlockProps) {
               key={v.label}
               className={cn(
                 "px-2 py-2 text-sm transition-colors cursor-pointer border-b",
-                i === selected
+                i === actualIndex
                   ? "text-primary border-primary"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               )}
               style={{ boxShadow: "none" }}
-              onClick={() => setSelected(i)}
-              aria-selected={i === selected}
+              onClick={() => setSelectedVariant(variantGroup, v.label)}
+              aria-selected={i === actualIndex}
               role="tab"
               type="button"
             >
