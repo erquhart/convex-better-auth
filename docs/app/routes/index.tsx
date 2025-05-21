@@ -4,7 +4,7 @@ import DocsLayout from "@/components/docs-layout";
 import { CodeBlock as CodeBlockComponent } from "@/components/code-block";
 import { stripIndent } from "common-tags";
 import { AlertTriangle } from "lucide-react";
-import { ComponentProps, PropsWithChildren, useState } from "react";
+import { ComponentProps, PropsWithChildren } from "react";
 import { cx } from "class-variance-authority";
 import { GenerateSecret } from "@/components/generate-secret";
 import { cn } from "@/lib/utils";
@@ -294,7 +294,6 @@ function Home() {
             </P>
 
             <CodeBlock
-              language="shell"
               variants={[
                 {
                   label: "npm",
@@ -370,6 +369,12 @@ function Home() {
           </Subsection>
 
           <Subsection id="better-auth-instance" title="Initialize Better Auth">
+            <Callout>
+              <strong>Note:</strong> The Better Auth component uses the Convex
+              database adapter, which handles all things schema and migration
+              related automatically.
+            </Callout>
+
             <P>
               Initialize the Convex component by importing the component class
               and creating a new instance. The component class constructor
@@ -395,7 +400,7 @@ function Home() {
                   convexAdapter,
                   type AuthFunctions,
                 } from "@erquhart/convex-better-auth";
-                import { convex, crossDomain } from "@erquhart/convex-better-auth/plugins";
+                import { convex } from "@erquhart/convex-better-auth/plugins";
                 import { betterAuth } from "better-auth";
                 import { components, internal } from "./_generated/api";
                 import type { GenericCtx } from "./_generated/server";
@@ -414,14 +419,9 @@ function Home() {
                   // Configure your Better Auth instance here
                   betterAuth({
                     database: convexAdapter(ctx, betterAuthComponent),
-                    // Replace with your site url
-                    trustedOrigins: ["http://localhost:3000"],
                     plugins: [
                       // The Convex plugin is required
                       convex(),
-                      // Adds support for your client and Convex backend being on separate
-                      // domains. Remove for Expo.
-                      crossDomain(),
                     ],
                   });
 
@@ -454,7 +454,7 @@ function Home() {
             <CodeBlock
               language="typescript"
               filename="convex/http.ts"
-              highlightedLines={[2, 6, 7, 8]}
+              highlightedLines={[2, 6]}
               code={stripIndent`
                 import { httpRouter } from 'convex/server'
                 import { betterAuthComponent, createAuth } from './auth'
@@ -475,15 +475,11 @@ function Home() {
               filename="lib/auth-client.ts"
               code={stripIndent`
                 import { createAuthClient } from "better-auth/react";
-                import { convexClient, crossDomainClient } from "@erquhart/convex-better-auth/client/plugins";
+                import { convexClient } from "@erquhart/convex-better-auth/client/plugins";
 
                 export const authClient = createAuthClient({
-                  // Your Convex site URL
-                  baseURL: 'https://adjective-animal-123.convex.site',
                   plugins: [
                     convexClient(),
-                    // Required if using the cross domain server plugin
-                    crossDomainClient(),
                   ],
                 });
               `}
@@ -519,6 +515,129 @@ function Home() {
                 export default ConvexProvider;
 
               `}
+            />
+          </Subsection>
+
+          <Subsection id="framework-integration" title="Framework integration">
+            <ContentHeading id="framework-client-only" title="Client only" />
+            <P>
+              The cross domain plugin provided by the component allows you to
+              use Better Auth directly with Convex, without a full stack
+              framework. This is great for client apps (e.g., React/Vite), or
+              for Next.js or other framework apps if you don't require server
+              side authentication.
+            </P>
+
+            <P>
+              Add your site/app url to <Code>trustedOrigins</Code> and add the
+              cross domain plugin to your Better Auth instance.
+            </P>
+            <CodeBlock
+              language="typescript"
+              filename="convex/auth.ts"
+              highlightedLines={[2, 10, 11, 15]}
+              code={stripIndent`
+                import { convexAdapter } from "@erquhart/convex-better-auth";
+                import { convex, crossDomain } from "@erquhart/convex-better-auth/plugins";
+                import { betterAuth } from "better-auth";
+                import type { GenericCtx } from "./_generated/server";
+
+                export const createAuth = (ctx: GenericCtx) =>
+                  betterAuth({
+                    database: convexAdapter(ctx, betterAuthComponent),
+
+                    // Replace with your site url
+                    trustedOrigins: ["http://localhost:3000"],
+
+                    plugins: [
+                      convex(),
+                      crossDomain(),
+                    ],
+                  });
+                `}
+            />
+
+            <P>
+              Set your Convex site url - the url for accessing http actions on
+              your Convex endpoint - as <Code>baseURL</Code> and add the cross
+              domain plugin to your Better Auth client instance.
+            </P>
+
+            <CodeBlock
+              language="typescript"
+              filename="lib/auth-client.ts"
+              highlightedLines={[2, 5, 6, 9]}
+              code={stripIndent`
+                import { createAuthClient } from "better-auth/react";
+                import { convexClient, crossDomainClient } from "@erquhart/convex-better-auth/client/plugins";
+
+                export const authClient = createAuthClient({
+                  // Replace with your Convex site url
+                  baseURL: 'https://adjective-animal-123.convex.site',
+                  plugins: [
+                    convexClient(),
+                    crossDomainClient(),
+                  ],
+                });
+              `}
+            />
+
+            <ContentHeading id="framework-full-stack" title="Full stack" />
+            <P>
+              You can also proxy requests from a full stack framework server to
+              your Convex backend.
+            </P>
+
+            <CodeBlock
+              variants={[
+                {
+                  label: "Next.js",
+                  language: "typescript",
+                  filename: "next.config.ts",
+                  code: stripIndent`
+                    import type { NextConfig } from "next";
+
+                    const nextConfig: NextConfig = {
+                      async rewrites() {
+                        return [
+                          {
+                            source: "/api/auth/:path*",
+                            destination:
+                              "https://adjective-animal-123.convex.site/api/auth/:path*",
+                          },
+                        ];
+                      },
+                    };
+
+                    export default nextConfig;
+                  `,
+                },
+              ]}
+            />
+
+            <P>
+              Set your site/app url as the <Code>baseURL</Code> on your Better
+              Auth server instance.
+            </P>
+            <CodeBlock
+              language="typescript"
+              filename="convex/auth.ts"
+              highlightedLines={[8]}
+              code={stripIndent`
+                import { convexAdapter } from "@erquhart/convex-better-auth";
+                import { convex } from "@erquhart/convex-better-auth/plugins";
+                import { betterAuth } from "better-auth";
+                import type { GenericCtx } from "./_generated/server";
+
+                export const createAuth = (ctx: GenericCtx) =>
+                  betterAuth({
+                    baseURL: "http://localhost:3000",
+                    database: convexAdapter(ctx, betterAuthComponent),
+                    plugins: [
+                      convex(),
+                    ],
+                  });
+                `}
             />
           </Subsection>
 
@@ -703,6 +822,7 @@ function Home() {
             </P>
             <CodeBlock
               language="tsx"
+              filename="App.tsx"
               code={stripIndent`
                 import { useConvexAuth } from "convex/react";
 

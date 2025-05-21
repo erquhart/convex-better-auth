@@ -243,6 +243,23 @@ export default function DocsLayout({
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
+                    <a href="#framework-integration">Framework integration</a>
+                  </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href="#framework-client-only">Client only</a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href="#framework-full-stack">Full stack</a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
                     <a href="#users-table">Users table</a>
                   </SidebarMenuButton>
                   <SidebarMenuSub>

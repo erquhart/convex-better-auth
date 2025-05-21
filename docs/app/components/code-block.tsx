@@ -278,7 +278,7 @@ export function CodeBlock(props: CodeBlockProps) {
     const selectedIndex = availableLabels.indexOf(globalSelected);
     const actualIndex = selectedIndex >= 0 ? selectedIndex : 0;
     active = variants[actualIndex] || variants[0];
-    if (variants.length > 1) {
+    if (variants.length > 0) {
       variantSelector = (
         <div className="flex" role="tablist">
           {variants.map((v, i) => (
