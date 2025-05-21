@@ -295,7 +295,28 @@ function Home() {
 
             <CodeBlock
               language="shell"
-              code="npm install @erquhart/convex-better-auth better-auth@1.2.7"
+              variants={[
+                {
+                  label: "npm",
+                  code: "npm install @erquhart/convex-better-auth better-auth@1.2.7",
+                  language: "shell",
+                },
+                {
+                  label: "pnpm",
+                  code: "pnpm add @erquhart/convex-better-auth better-auth@1.2.7",
+                  language: "shell",
+                },
+                {
+                  label: "yarn",
+                  code: "yarn add @erquhart/convex-better-auth better-auth@1.2.7",
+                  language: "shell",
+                },
+                {
+                  label: "bun",
+                  code: "bun add @erquhart/convex-better-auth better-auth@1.2.7",
+                  language: "shell",
+                },
+              ]}
             />
 
             <P>
