@@ -10,6 +10,7 @@ import {
   type HttpRouter,
   httpActionGeneric,
   internalMutationGeneric,
+  queryGeneric,
 } from "convex/server";
 import { type GenericId, Infer, v } from "convex/values";
 import type { api } from "../component/_generated/api";
@@ -19,6 +20,8 @@ import corsRouter from "./cors";
 import { getByArgsValidator, updateArgsInputValidator } from "../component/lib";
 import { betterAuth } from "better-auth";
 import { omit } from "convex-helpers";
+import { createCookieGetter } from "better-auth/cookies";
+import { fetchQuery } from "convex/nextjs";
 export { convexAdapter };
 
 const createUserFields = omit(schema.tables.user.validator.fields, ["userId"]);
@@ -68,6 +71,7 @@ export type AuthFunctions = {
     "internal",
     Infer<typeof createSessionArgsValidator>
   >;
+  isAuthenticated?: FunctionReference<"query", "public">;
 };
 
 export class BetterAuth<UserId extends string = string> {
@@ -78,6 +82,15 @@ export class BetterAuth<UserId extends string = string> {
       verbose?: boolean;
     }
   ) {}
+
+  async isAuthenticated(token?: string) {
+    if (!this.authFunctions.isAuthenticated) {
+      throw new Error(
+        "isAuthenticated function not found. It must be a named export in convex/auth.ts"
+      );
+    }
+    return fetchQuery(this.authFunctions.isAuthenticated, {}, { token });
+  }
 
   async getHeaders(ctx: RunQueryCtx & { auth: ConvexAuth }) {
     const identity = await ctx.auth.getUserIdentity();
@@ -121,6 +134,15 @@ export class BetterAuth<UserId extends string = string> {
     return user;
   }
 
+  async getIdTokenCookieName(
+    createAuth: (ctx: GenericActionCtx<any>) => ReturnType<typeof betterAuth>
+  ) {
+    const auth = createAuth({} as any);
+    const createCookie = createCookieGetter(auth.options);
+    const cookie = createCookie("convex_jwt");
+    return cookie.name;
+  }
+
   createAuthFunctions<DataModel extends GenericDataModel>(opts: {
     onCreateUser: (
       ctx: GenericMutationCtx<DataModel>,
@@ -140,6 +162,13 @@ export class BetterAuth<UserId extends string = string> {
     ) => void | Promise<void>;
   }) {
     return {
+      isAuthenticated: queryGeneric({
+        args: v.object({}),
+        handler: async (ctx) => {
+          const identity = await ctx.auth.getUserIdentity();
+          return identity !== null;
+        },
+      }),
       createUser: internalMutationGeneric({
         args: createUserArgsValidator,
         handler: async (ctx, args) => {

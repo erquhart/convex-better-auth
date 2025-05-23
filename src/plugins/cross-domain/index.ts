@@ -4,15 +4,11 @@ import {
   BetterAuthPlugin,
   createAuthEndpoint,
   createAuthMiddleware,
-  bearer as bearerPlugin,
   oneTimeToken as oneTimeTokenPlugin,
 } from "better-auth/plugins";
 import { z } from "zod";
 
 export const crossDomain = () => {
-  // We only need bearer to convert the session token to a cookie
-  // for cross domain social login, after code verification.
-  const bearer = bearerPlugin();
   const oneTimeToken = oneTimeTokenPlugin();
   const schema = {
     user: {
@@ -23,7 +19,6 @@ export const crossDomain = () => {
     id: "cross-domain",
     hooks: {
       before: [
-        ...bearer.hooks.before,
         {
           matcher(context) {
             return Boolean(

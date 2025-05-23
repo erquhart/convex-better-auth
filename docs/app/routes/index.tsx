@@ -297,22 +297,34 @@ function Home() {
               variants={[
                 {
                   label: "npm",
-                  code: "npm install @erquhart/convex-better-auth better-auth@1.2.7",
+                  code: stripIndent`
+                    npm install @erquhart/convex-better-auth
+                    npm install better-auth@1.2.7 --save-exact
+                  `,
                   language: "shell",
                 },
                 {
                   label: "pnpm",
-                  code: "pnpm add @erquhart/convex-better-auth better-auth@1.2.7",
+                  code: stripIndent`
+                    pnpm add @erquhart/convex-better-auth
+                    pnpm add better-auth@1.2.7 --save-exact
+                  `,
                   language: "shell",
                 },
                 {
                   label: "yarn",
-                  code: "yarn add @erquhart/convex-better-auth better-auth@1.2.7",
+                  code: stripIndent`
+                    yarn add @erquhart/convex-better-auth
+                    yarn add better-auth@1.2.7 --exact
+                  `,
                   language: "shell",
                 },
                 {
                   label: "bun",
-                  code: "bun add @erquhart/convex-better-auth better-auth@1.2.7",
+                  code: stripIndent`
+                    bun add @erquhart/convex-better-auth
+                    bun add better-auth@1.2.7 --exact
+                  `,
                   language: "shell",
                 },
               ]}
@@ -389,6 +401,31 @@ function Home() {
             <P>
               The <Code>createAuth</Code> function is used for setting up http
               actions and can be imported for use in your Convex functions.
+            </P>
+
+            <P>First, add a users table to your schema.</P>
+
+            <CodeBlock
+              language="typescript"
+              filename="convex/schema.ts"
+              highlightedLines={[5, 6, 7, 8]}
+              code={stripIndent`
+                import { defineSchema, defineTable } from "convex/server";
+                import { v } from "convex/values";
+
+                export default defineSchema({
+                  // Can be named whatever you like
+                  users: defineTable({
+                    // Fields are optional
+                  }),
+                });
+              `}
+            />
+
+            <P>Create your Better Auth instance.</P>
+            <P>
+              <strong>Note:</strong> Some Typescript errors will show until you
+              save the file.
             </P>
 
             <CodeBlock
@@ -501,7 +538,7 @@ function Home() {
 
                 import { ConvexReactClient } from "convex/react";
                 import { ConvexBetterAuthProvider } from "@erquhart/convex-better-auth/react";
-                import { authClient } from "./auth-client";
+                import { authClient } from "../lib/auth-client";
                 import { PropsWithChildren } from "react";
 
                 const convex = new ConvexReactClient(process.env.CONVEX_URL as string);

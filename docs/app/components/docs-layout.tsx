@@ -140,7 +140,6 @@ export default function DocsLayout({
   if (!mounted) {
     return null;
   }
-  // make scrollable
   return (
     <SidebarProvider>
       <Sidebar variant="inset" collapsible="icon">
