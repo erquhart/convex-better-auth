@@ -15,7 +15,7 @@
   "type": "module",
   "scripts": {
     "build": "npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc --project ./esm.json && echo '{\\n  \"type\": \"module\"\\n}' > dist/esm/package.json",
+    "build:esm": "tsc --project ./esm.json && tsc-alias -p ./esm.json && echo '{\\n  \"type\": \"module\"\\n}' > dist/esm/package.json",
     "build:cjs": "tsc --project ./commonjs.json && echo '{\\n  \"type\": \"commonjs\"\\n}' > dist/commonjs/package.json",
     "dev": "cd example; npm run dev",
     "typecheck": "tsc --noEmit",
@@ -115,6 +115,7 @@
     "globals": "^15.9.0",
     "next": "^15.1.8",
     "prettier": "3.2.5",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.4.0",
     "vitest": "^2.1.4"

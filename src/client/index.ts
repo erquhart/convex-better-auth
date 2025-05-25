@@ -83,13 +83,17 @@ export class BetterAuth<UserId extends string = string> {
     }
   ) {}
 
-  async isAuthenticated(token?: string) {
+  async isAuthenticated(token?: string | null) {
     if (!this.authFunctions.isAuthenticated) {
       throw new Error(
         "isAuthenticated function not found. It must be a named export in convex/auth.ts"
       );
     }
-    return fetchQuery(this.authFunctions.isAuthenticated, {}, { token });
+    return fetchQuery(
+      this.authFunctions.isAuthenticated,
+      {},
+      { token: token ?? undefined }
+    );
   }
 
   async getHeaders(ctx: RunQueryCtx & { auth: ConvexAuth }) {

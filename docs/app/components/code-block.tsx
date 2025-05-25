@@ -235,7 +235,6 @@ function CodeBlockInternal({
                           ) : (
                             <Copy className="h-3 w-3 text-muted-foreground" />
                           )}
-                          <span className="sr-only">Copy section</span>
                         </Button>
                       )}
                       {line.map((token, key) => (

@@ -10,11 +10,6 @@ import { z } from "zod";
 
 export const crossDomain = () => {
   const oneTimeToken = oneTimeTokenPlugin();
-  const schema = {
-    user: {
-      fields: { userId: { type: "string", required: false, input: false } },
-    } as const,
-  };
   return {
     id: "cross-domain",
     hooks: {
@@ -116,6 +111,5 @@ export const crossDomain = () => {
         }
       ),
     },
-    schema,
   } satisfies BetterAuthPlugin;
 };

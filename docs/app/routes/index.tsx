@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { Link as LinkIcon } from "lucide-react";
 import DocsLayout from "@/components/docs-layout";
@@ -286,6 +288,12 @@ function Home() {
               </a>{" "}
               to learn more.
             </P>
+            <Callout>
+              It's helpful to have the Convex dev server (
+              <Code>npx convex dev</Code>) running in the background while
+              setting up, otherwise you'll see type errors that won't resolve
+              until you run it.
+            </Callout>
           </Subsection>
           <Subsection id="installation" title="Installation">
             <P>
@@ -382,9 +390,8 @@ function Home() {
 
           <Subsection id="better-auth-instance" title="Initialize Better Auth">
             <Callout>
-              <strong>Note:</strong> The Better Auth component uses the Convex
-              database adapter, which handles all things schema and migration
-              related automatically.
+              The Better Auth component uses the Convex database adapter, which
+              handles all things schema and migration related automatically.
             </Callout>
 
             <P>
@@ -408,10 +415,9 @@ function Home() {
             <CodeBlock
               language="typescript"
               filename="convex/schema.ts"
-              highlightedLines={[5, 6, 7, 8]}
+              highlightedLines={[4, 5, 6, 7]}
               code={stripIndent`
                 import { defineSchema, defineTable } from "convex/server";
-                import { v } from "convex/values";
 
                 export default defineSchema({
                   // Can be named whatever you like
